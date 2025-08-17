@@ -49,7 +49,7 @@ QuickRead is a modern Android news application built using **Jetpack Compose** a
 - **Navigation Compose**
 - **Material Design 3**
 - **ViewModel + Coroutines + Flows**
-- **Hilt** (optional for DI, if added later)
+- **Hilt**
 
 ---
 
