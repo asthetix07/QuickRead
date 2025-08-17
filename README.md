@@ -60,6 +60,7 @@ QuickRead is a modern Android news application built using **Jetpack Compose** a
 [![portfolio](https://img.shields.io/badge/my_portfolio-000?style=for-the-badge&logo=ko-fi&logoColor=white)](https://akash-portfolio-max07.web.app/)
 [![linkedin](https://img.shields.io/badge/linkedin-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/asthetix07/)
 [![twitter](https://img.shields.io/badge/twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white)](https://x.com/asthetix__07/)
+[![Google Drive](https://img.shields.io/badge/Google%20Drive-4285F4?logo=googledrive&logoColor=fff)](https://drive.google.com/file/d/1U1w5vU3IVSblZvO79AY3fFhwyCn6kvGh/view?usp=drive_link/)
 
 
 ![Logo](https://www.gstatic.com/devrel-devsite/prod/vfbd11e784c22f4aaa184963b528a22b42504e1842229d6f6f6b59838a38023ff/android/images/lockup.png)
