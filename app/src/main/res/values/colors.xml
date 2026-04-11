@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- QuickRead Palette -->
+    <color name="p1">#071739</color>
+    <color name="p2">#4B6382</color>
+    <color name="p3">#A4B5C4</color>
+    <color name="p4">#CDD5DB</color>
+    <color name="p5">#A68868</color>
+    <color name="p6">#E3C39D</color>
+</resources>
