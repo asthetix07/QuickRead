@@ -43,6 +43,8 @@ object NewsNotificationHelper {
         }
     }
 
+    const val EXTRA_ARTICLE_URL = "extra_article_url"
+
     /**
      * Posts a collapsed notification with a BigPicture expansion style.
      *
@@ -50,22 +52,26 @@ object NewsNotificationHelper {
      * @param title       Article headline.
      * @param description Article summary.
      * @param imageUrl    Image URL; `null` triggers the fallback drawable.
+     * @param articleUrl  Article URL for deep-linking into the WebView on tap.
      */
     fun showNewsNotification(
         context: Context,
         title: String,
         description: String,
-        imageUrl: String?
+        imageUrl: String?,
+        articleUrl: String?
     ) {
         createNotificationChannel(context)
 
         val bitmap = downloadBitmap(imageUrl) ?: getFallbackBitmap(context)
 
         val intent = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            putExtra(EXTRA_ARTICLE_URL, articleUrl)
         }
+        val requestCode = articleUrl?.hashCode() ?: NOTIFICATION_ID
         val pendingIntent = PendingIntent.getActivity(
-            context, 0, intent,
+            context, requestCode, intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
@@ -85,7 +91,7 @@ object NewsNotificationHelper {
             .build()
 
         context.getSystemService(NotificationManager::class.java)
-            .notify(NOTIFICATION_ID, notification)
+            .notify(requestCode, notification)
     }
 
     /**

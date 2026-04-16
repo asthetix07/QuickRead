@@ -1,11 +1,14 @@
-package com.example.quickread.models
+package com.example.quickread.viewmodel
 
 import android.content.Context
 import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.quickread.ai.SummaryHelper
 import com.example.quickread.db.ArticleDao
+import com.example.quickread.models.Article
+import com.example.quickread.models.Source
 import com.example.quickread.repository.NewsRepository
 import com.example.quickread.ui.state.NewsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,11 +23,14 @@ import javax.inject.Inject
 /**
  * Central ViewModel for news operations — fetching headlines, searching,
  * saving/deleting articles, and managing category selection.
+ *
+ * AI summary generation is delegated to [SummaryHelper].
  */
 @HiltViewModel
 class NewsViewModel @Inject constructor(
     private val repository: NewsRepository,
-    private val dao: ArticleDao
+    private val dao: ArticleDao,
+    private val summaryHelper: SummaryHelper
 ) : ViewModel() {
 
     private val _topNews = MutableStateFlow(NewsUiState())
@@ -156,6 +162,15 @@ class NewsViewModel @Inject constructor(
             if (file.exists()) file.delete()
         }
     }
+
+    // ── AI Summary ───────────────────────────────────────────────────────
+
+    /**
+     * Generates a short summary (max 25-30 words) for the given news title using Gemini.
+     * Delegates to [SummaryHelper] for model management.
+     */
+    suspend fun generateSummary(title: String): String =
+        summaryHelper.generateSummary(title)
 
     // ── Private helpers ──────────────────────────────────────────────────
 

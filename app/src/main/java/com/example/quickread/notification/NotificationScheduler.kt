@@ -23,6 +23,14 @@ object NotificationScheduler {
 
     private const val WORK_NAME = "news_notification_work"
 
+    /**
+     * Schedules (or re-schedules) the periodic news notification worker.
+     *
+     * Uses [ExistingPeriodicWorkPolicy.UPDATE] so that every app launch
+     * refreshes the timer — preventing stale schedules after Doze deferrals.
+     * The flex interval is kept tight (15 min within an 85-min cycle) so
+     * the notification fires predictably.
+     */
     fun schedule(context: Context) {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -31,7 +39,7 @@ object NotificationScheduler {
         val workRequest = PeriodicWorkRequestBuilder<NewsNotificationWorker>(
             repeatInterval = 85,
             repeatIntervalTimeUnit = TimeUnit.MINUTES,
-            flexTimeInterval = 40,
+            flexTimeInterval = 15,
             flexTimeIntervalUnit = TimeUnit.MINUTES
         )
             .setConstraints(constraints)
@@ -39,7 +47,7 @@ object NotificationScheduler {
 
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
             WORK_NAME,
-            ExistingPeriodicWorkPolicy.KEEP,
+            ExistingPeriodicWorkPolicy.UPDATE,
             workRequest
         )
     }

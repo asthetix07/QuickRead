@@ -23,17 +23,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import com.example.quickread.ui.navigation.BottomNavItem
 import com.example.quickread.ui.theme.LightBlueGray
 import com.example.quickread.ui.theme.TanBrown
-
-/**
- * Represents a single item in the bottom navigation bar.
- */
-data class BottomNavItem(
-    val route: String,
-    val icon: ImageVector,
-    val label: String
-)
 
 /**
  * Reusable floating pill-shaped bottom navigation bar.

@@ -51,7 +51,8 @@ import com.google.accompanist.placeholder.material.shimmer
 fun NewsCard(
     article: Article,
     onClick: () -> Unit,
-    onSaveClick: () -> Unit
+    onSaveClick: () -> Unit,
+    onGeminiClick: () -> Unit = {}
 ) {
     val painter = rememberAsyncImagePainter(article.urlToImage ?: "")
     val imageState = painter.state
@@ -175,8 +176,20 @@ fun NewsCard(
                 // Save icon aligned to trailing edge
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
+                    IconButton(
+                        onClick = onGeminiClick,
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.gemini),
+                            contentDescription = "Gemini Icon",
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
                     IconButton(
                         onClick = onSaveClick,
                         modifier = Modifier.size(32.dp)

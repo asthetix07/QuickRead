@@ -18,18 +18,22 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.example.quickread.models.NewsViewModel
+import com.example.quickread.viewmodel.NewsViewModel
 import com.example.quickread.ui.components.CategoryChipBar
 import com.example.quickread.ui.components.ErrorState
 import com.example.quickread.ui.components.LoadingIndicator
 import com.example.quickread.ui.components.NewsCard
+import com.example.quickread.ui.components.NewsSummaryBottomSheet
+import com.example.quickread.models.Article
 import com.example.quickread.ui.theme.TanBrown
 
 @Composable
@@ -42,6 +46,7 @@ fun TopNewsScreen(
     val selectedCategory by viewModel.selectedCategory.collectAsStateWithLifecycle()
     val listState = rememberLazyListState()
     val context = LocalContext.current
+    var selectedArticleForSummary by remember { mutableStateOf<Article?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.fetchTopHeadlines()
@@ -101,6 +106,7 @@ fun TopNewsScreen(
                         NewsCard(
                             article = article,
                             onSaveClick = { viewModel.saveArticle(article, context) },
+                            onGeminiClick = { selectedArticleForSummary = article },
                             onClick = {
                                 val encodedUrl = Uri.encode(article.url)
                                 navController.navigate("webView/$encodedUrl")
@@ -123,5 +129,13 @@ fun TopNewsScreen(
                 }
             }
         }
+    }
+
+    if (selectedArticleForSummary != null) {
+        NewsSummaryBottomSheet(
+            article = selectedArticleForSummary,
+            onDismiss = { selectedArticleForSummary = null },
+            viewModel = viewModel
+        )
     }
 }

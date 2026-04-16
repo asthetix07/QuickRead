@@ -22,6 +22,9 @@ import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,8 +37,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.example.quickread.models.NewsViewModel
+import com.example.quickread.viewmodel.NewsViewModel
 import com.example.quickread.ui.components.NewsCard
+import com.example.quickread.ui.components.NewsSummaryBottomSheet
+import com.example.quickread.models.Article
 import com.example.quickread.utils.NetworkUtils
 import java.io.File
 
@@ -49,6 +54,7 @@ fun SavedNewsScreen(
     val savedArticles by viewModel.savedNews.observeAsState(emptyList())
     val listState = rememberLazyListState()
     val context = LocalContext.current
+    var selectedArticleForSummary by remember { mutableStateOf<Article?>(null) }
 
     // Scroll to top when a new article is saved
     LaunchedEffect(savedArticles.size) {
@@ -131,12 +137,21 @@ fun SavedNewsScreen(
                                     val encodedUrl = Uri.encode(targetUrl)
                                     navController.navigate("webView/$encodedUrl")
                                 },
-                                onSaveClick = { viewModel.saveArticle(article, context) }
+                                onSaveClick = { viewModel.saveArticle(article, context) },
+                                onGeminiClick = { selectedArticleForSummary = article }
                             )
                         }
                     )
                 }
             }
         }
+    }
+
+    if (selectedArticleForSummary != null) {
+        NewsSummaryBottomSheet(
+            article = selectedArticleForSummary,
+            onDismiss = { selectedArticleForSummary = null },
+            viewModel = viewModel
+        )
     }
 }

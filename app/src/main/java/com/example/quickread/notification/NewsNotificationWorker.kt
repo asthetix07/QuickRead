@@ -34,7 +34,8 @@ class NewsNotificationWorker @AssistedInject constructor(
                     context = applicationContext,
                     title = article.title ?: "QuickRead News",
                     description = article.description ?: "Tap to read the latest news",
-                    imageUrl = article.urlToImage
+                    imageUrl = article.urlToImage,
+                    articleUrl = article.url
                 )
             }
             Result.success()

@@ -37,10 +37,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.example.quickread.models.NewsViewModel
+import com.example.quickread.viewmodel.NewsViewModel
 import com.example.quickread.ui.components.ErrorState
 import com.example.quickread.ui.components.LoadingIndicator
 import com.example.quickread.ui.components.NewsCard
+import com.example.quickread.ui.components.NewsSummaryBottomSheet
+import com.example.quickread.models.Article
 import com.example.quickread.ui.theme.LightBlueGray
 import com.example.quickread.ui.theme.MediumBlue
 import com.example.quickread.ui.theme.TanBrown
@@ -64,6 +66,7 @@ fun SearchNewsScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
 
     var hasSearched by remember { mutableStateOf(false) }
+    var selectedArticleForSummary by remember { mutableStateOf<Article?>(null) }
 
     // Memoize distinct articles to avoid re-computing on every recomposition
     val distinctArticles = remember(newsState.articles) {
@@ -166,7 +169,8 @@ fun SearchNewsScreen(
                                 val encodedUrl = Uri.encode(article.url)
                                 navController.navigate("webView/$encodedUrl")
                             },
-                            onSaveClick = { viewModel.saveArticle(article, context) }
+                            onSaveClick = { viewModel.saveArticle(article, context) },
+                            onGeminiClick = { selectedArticleForSummary = article }
                         )
                     }
                 }
@@ -184,5 +188,13 @@ fun SearchNewsScreen(
                 hasSearched = true
                 viewModel.searchNews(query)
             }
+    }
+
+    if (selectedArticleForSummary != null) {
+        NewsSummaryBottomSheet(
+            article = selectedArticleForSummary,
+            onDismiss = { selectedArticleForSummary = null },
+            viewModel = viewModel
+        )
     }
 }

@@ -1,6 +1,7 @@
 package com.example.quickread.di
 
 import android.content.Context
+import androidx.room.Room
 import com.example.quickread.api.NewsAPI
 import com.example.quickread.db.ArticleDao
 import com.example.quickread.db.NewsDatabase
@@ -26,6 +27,7 @@ import javax.inject.Singleton
 object AppModule {
 
     private const val BASE_URL = "https://newsapi.org/v2/"
+    private const val DB_NAME = "article_db.db"
 
     @Provides
     @Singleton
@@ -59,10 +61,15 @@ object AppModule {
     @Provides
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): NewsDatabase =
-        NewsDatabase.invoke(context)
+        Room.databaseBuilder(
+            context.applicationContext,
+            NewsDatabase::class.java,
+            DB_NAME
+        ).build()
 
     @Provides
     @Singleton
     fun provideDao(db: NewsDatabase): ArticleDao =
         db.getArticleDao()
 }
+

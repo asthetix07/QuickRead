@@ -1,9 +1,12 @@
 package com.example.quickread
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -19,14 +22,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.quickread.notification.NewsNotificationHelper
 import com.example.quickread.notification.NotificationScheduler
-import com.example.quickread.ui.components.BottomNavItem
+import com.example.quickread.ui.navigation.BottomNavItem
 import com.example.quickread.ui.components.QuickReadBottomBar
 import com.example.quickread.ui.components.QuickReadTopBar
 import com.example.quickread.ui.navigation.AppNavHost
@@ -39,14 +45,22 @@ import dagger.hilt.android.AndroidEntryPoint
  * Responsibilities:
  * - Requests POST_NOTIFICATIONS permission on Android 13+.
  * - Schedules the periodic news notification worker after permission is granted.
+ * - Handles deep-link intents from notification taps to open articles in WebView.
  * - Hosts the navigation graph, top bar, and bottom bar.
  */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
+    /** Holds the article URL received from a notification deep link. */
+    private var deepLinkUrl by mutableStateOf<String?>(null)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // Extract deep link URL from the launching intent (cold start)
+        deepLinkUrl = intent?.getStringExtra(NewsNotificationHelper.EXTRA_ARTICLE_URL)
+
         setContent {
             QuickReadTheme {
                 val context = LocalContext.current
@@ -72,6 +86,9 @@ class MainActivity : ComponentActivity() {
                     } else {
                         NotificationScheduler.schedule(context)
                     }
+
+                    // Request battery optimization exemption for reliable notifications
+                    requestBatteryOptimizationExemption()
                 }
 
                 // ── Navigation ───────────────────────────────────────────
@@ -121,6 +138,8 @@ class MainActivity : ComponentActivity() {
                 ) { innerPadding ->
                     AppNavHost(
                         navController = navController,
+                        deepLinkUrl = deepLinkUrl,
+                        onDeepLinkConsumed = { deepLinkUrl = null },
                         modifier = Modifier.padding(
                             top = innerPadding.calculateTopPadding(),
                             bottom = 0.dp
@@ -130,4 +149,33 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    /**
+     * Called when the activity receives a new intent while already running
+     * (e.g. user taps a second notification while the app is open).
+     */
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        deepLinkUrl = intent.getStringExtra(NewsNotificationHelper.EXTRA_ARTICLE_URL)
+    }
+
+    /**
+     * Prompts the user to disable battery optimization for this app.
+     * This ensures WorkManager periodic tasks aren't aggressively deferred
+     * by Doze mode on devices that have been idle for a long time.
+     */
+    @Suppress("DEPRECATION")
+    private fun requestBatteryOptimizationExemption() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val pm = getSystemService(android.os.PowerManager::class.java)
+            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                val intent = Intent(
+                    Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+                    Uri.parse("package:$packageName")
+                )
+                startActivity(intent)
+            }
+        }
+    }
 }
+

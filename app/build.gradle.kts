@@ -6,6 +6,8 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt.android)
+
+
 }
 
 android {
@@ -17,7 +19,7 @@ android {
         minSdk = 24
         targetSdk = 35
         versionCode = 1
-        versionName = "2.0"
+        versionName = "3.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -32,11 +34,17 @@ android {
         val apiKey = localProperties.getProperty("API_KEY")
             ?: throw GradleException("API_KEY not found in local.properties")
         buildConfigField("String", "API_KEY", apiKey)
+
+        val geminiApiKey = localProperties.getProperty("GEMINI_API_KEY")
+            ?: throw GradleException("API_KEY not found in local.properties")
+        buildConfigField("String", "GEMINI_API_KEY", geminiApiKey)
+        versionNameSuffix = "native"
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -82,7 +90,6 @@ dependencies {
 
     // Navigation
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.navigation.ui)
 
     // Room
     implementation(libs.androidx.room.runtime)
@@ -100,8 +107,6 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.okhttp)
-    implementation(libs.logging.interceptor)
-    implementation(libs.jsoup)
 
     // Dependency Injection
     implementation(libs.hilt.android)
@@ -129,4 +134,7 @@ dependencies {
     // Debug
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    // Import the Google AI client SDK for Gemini
+    implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
 }
